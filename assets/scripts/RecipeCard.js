@@ -3,6 +3,8 @@ class RecipeCard extends HTMLElement {
     // Part 1 Expose - TODO
 
     // You'll want to attach the shadow DOM here
+    super();
+    const shadow = this.attachShadow({mode: 'open'});
   }
 
   set data(data) {
@@ -100,6 +102,76 @@ class RecipeCard extends HTMLElement {
     // created in the constructor()
 
     // Part 1 Expose - TODO
+    this.shadowRoot.append(styleElem);
+    const headline = searchForKey(data, "headline");
+
+    // create the image
+    const img = document.createElement('img');
+    img.setAttribute('src', !searchForKey(data, "thumbnailUrl") ? searchForKey(data, "image").url : searchForKey(data, "thumbnailUrl") )
+    img.setAttribute('alt', headline);
+    
+    // create the p tag
+    const pTitle = document.createElement('p');
+    pTitle.classList.add("title");
+
+    const a = document.createElement('a');
+    a.setAttribute("href", getUrl(data));
+    a.textContent = headline;
+    pTitle.appendChild(a);
+
+    // create the org title
+    const pOrg = document.createElement('p');
+    pOrg.classList.add('organization');
+    pOrg.textContent = getOrganization(data);
+
+    // create the rating div
+    const ratingDiv = document.createElement('div');
+    ratingDiv.classList.add('rating');
+
+    // determine the rating system
+    const ratingSpan = document.createElement('span');
+    const ratingValue = searchForKey(data, "ratingValue");
+    const ratingCount = searchForKey(data, "ratingCount")
+    
+    if(ratingValue) {
+      ratingSpan.textContent = ratingValue;
+
+      const roundedNum = Math.round(ratingValue);
+      const ratingImg = document.createElement('img');
+      ratingImg.setAttribute("src", `./assets/images/icons/${roundedNum}-star.svg`);
+
+      const ratingCountSpan= document.createElement('span');
+      ratingCountSpan.textContent = ratingCount;
+
+      ratingDiv.append(ratingSpan);
+      ratingDiv.append(ratingImg);
+      ratingDiv.append(ratingCountSpan);
+    } else {
+      ratingSpan.textContent = "No Reviews"; 
+
+      ratingDiv.append(ratingSpan);
+    }
+
+    // time it takes to finish recipe
+    const time = document.createElement('time');
+    const getTime = convertTime(searchForKey(data, 'totalTime'));
+    time.textContent = getTime;
+
+    // ingredients list
+    const pIngredients = document.createElement('p');
+    pIngredients.classList.add('ingredients');
+
+    const getIngredients = createIngredientList(searchForKey(data, "recipeIngredient"));
+    pIngredients.textContent = getIngredients;
+
+    card.appendChild(img);
+    card.appendChild(pTitle);
+    card.appendChild(pOrg);
+    card.appendChild(ratingDiv);
+    card.appendChild(time);
+    card.appendChild(pIngredients);
+
+    this.shadowRoot.append(card);
   }
 }
 
